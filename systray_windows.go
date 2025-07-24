@@ -1,3 +1,4 @@
+//go:build windows
 // +build windows
 
 package systray
@@ -853,6 +854,24 @@ func SetIcon(iconBytes []byte) {
 // .ico/.jpg/.png for other platforms.
 func SetTemplateIcon(templateIconBytes []byte, regularIconBytes []byte) {
 	SetIcon(regularIconBytes)
+}
+
+func CacheIcon(iconFilePath string) {
+	if _, err := os.Stat(iconFilePath); os.IsNotExist(err) {
+		log.Errorf("Icon file does not exist: %s", iconFilePath)
+		return
+	}
+	if err := wt.setIcon(iconFilePath); err != nil {
+		log.Errorf("Unable to setIcon icon from file: %v", err)
+		return
+	}
+}
+
+func SetIconFromCache(iconFilePath string) {
+	if err := wt.setIcon(iconFilePath); err != nil {
+		log.Errorf("Unable to setIcon icon from file: %v", err)
+		return
+	}	
 }
 
 // SetTitle sets the systray title, only available on Mac and Linux.
